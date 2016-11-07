@@ -1,8 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta name="viewport" content="width=320, initial-scale=1"/>
-	<title>jsmpeg-vnc</title>
+
+<script src="http://169.46.85.42:9001/socket.io/socket.io.js"></script>
+<script src="http://169.46.85.42:9001/aurora.js"></script>
+<script src="http://169.46.85.42:9001/aac.js"></script>
+<script src="http://169.46.85.42:9001/dist/aurora-websocket.js"></script>
+
+	<!--<meta name="viewport" content="width=90%, initial-scale=0.55"/>-->
+	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1"/>
+	<title>Instnant App &trade;</title>
+	
+	<script>
+	
+	//readDeviceOrientation();
+	function readDeviceOrientation() {
+                 	
+	setTimeout(function(){
+	var query = window.matchMedia("(orientation:landscape)");
+	console.log("Device held " + (query.matches ? "horizontally" : "vertically"));
+	 var canvs=document.getElementById("videoCanvas");
+	if (query.matches)
+	{
+		document.querySelector("meta[name='"+"viewport"+"']").setAttribute("content", " initial-scale=1");
+
+		canvs.width="668";
+		canvs.height="376";
+		window.ornt=1;
+		/mobile/i.test(navigator.userAgent) && setTimeout(function
+() {   window.scrollTo(0, 100); }, 1000); 
+
+	}
+	else 
+	{
+		document.querySelector("meta[name='"+"viewport"+"']").setAttribute("content", " initial-scale=0.87");
+		canvs.width="375";
+		canvs.height="668";
+		window.ornt=0;
+	}
+	
+	},100);
+   // alert(window.orientation);
+    if (Math.abs(window.orientation) === 90) {
+        // Landscape
+        //var canvs=document.getElementById("videoCanvas");
+        //canvs.style.width="95%";
+		//canvs.style.width="668";
+		//canvs.style.height="376";
+		
+        //console.log("landscape");
+        //document.getElementById("orientation").innerHTML = "LANDSCAPE";
+    } else {
+    	// Portrait
+    	//var canvs=document.getElementById("videoCanvas");
+        //canvs.style.width="83%";
+		//canvs.style.width="376";
+		//canvs.style.height="668";
+    	//console.log("Portrait");
+    	//document.getElementById("orientation").innerHTML = "PORTRAIT";
+    }
+}
+
+	window.addEventListener("orientationchange", function(e) {
+	console.log("e="+e);
+ 	 // Announce the new orientation number
+ 	 readDeviceOrientation();
+ 	 
+		
+
+	}, false);
+
+	</script>
 	<style type="text/css">
 		body {
 			background: #111;
@@ -19,7 +87,8 @@
 			/* Always stretch the canvas to 100%, regardless of its
 			internal size. 
 			width: 100%;
-			height: 100%;*/
+			height: 100%;
+			width:87%;*/
 		}
 		
 		.keys {
@@ -28,9 +97,9 @@
 		.key {
 			color: #fff;
 			float: left;
-			width: 72px;
 			height: 48px;
 			padding-top: 24px;
+			width: 72px;
 			background-color: #5bcbeb;
 			position: absolute;
 		}
@@ -47,9 +116,43 @@
 	</style>
 </head>
 <body>
-	<canvas id="videoCanvas" width="640" height="480"></canvas>
 
-	<div class="keys mobile-only">
+	<canvas id="videoCanvas" width="668" height="376"></canvas>
+<script type="text/javascript" src="jsmpg.js"></script>
+	<script type="text/javascript" src="jsmpg-vnc.js"></script>
+	<script>
+var canvs=document.getElementById("videoCanvas");
+
+	/mobile/i.test(navigator.userAgent) && setTimeout(function
+() {   window.scrollTo(0, 100); }, 1000); 
+
+	/*setTimeout(function(){ 
+		var aud = document.getElementById("myaudio");
+		//console.log("current time="+aud.currentTime);
+		//aud.pause();
+		//aud.currentTime= aud.currentTime+1;
+		//aud.play();
+		//console.log("current time2="+aud.currentTime);
+
+		//aud.pause();
+	}, 8000);*/
+	
+	
+	 var player = null;
+	 var audio_init=false;
+    document.querySelector('#videoCanvas').addEventListener('click', function() {
+        console.log('start', performance.now());
+		if (typeof window.audstarted == 'undefined'){
+			window.audstarted=true;
+			window.pplayer = AV.Player.fromWebSocket('169.46.85.42:9001');
+			window.pplayer.play();
+		}
+    });
+	
+		readDeviceOrientation();
+	
+		</script>
+<!--	<div class="keys mobile-only">
 		<div class="key" data-code="38" id="key-up">UP</div>
 		<div class="key" data-code="40" id="key-down">DOWN</div>
 		<div class="key" data-code="39" id="key-right">RIGHT</div>
@@ -57,9 +160,8 @@
 		
 		<div class="key key-small" data-code="27" id="key-esc">ESC</div>
 		<div class="key key-small" data-code="13" id="key-enter">ENTER</div>
-	</div>
+	</div>-->
 
-	<script type="text/javascript" src="jsmpg.js"></script>
-	<script type="text/javascript" src="jsmpg-vnc.js"></script>
+	
 </body>
 </html>

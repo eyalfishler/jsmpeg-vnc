@@ -749,7 +749,54 @@
 
     jsmpeg.prototype.renderFrame2D = function () {
         this.YCbCrToRGBA();
-        this.canvasContext.putImageData(this.currentRGBA, 0, 0);
+		
+		var tmpcnv = document.createElement("canvas");
+		
+		
+		if (window.ornt == 0)
+		{
+			this.canvasContext.translate(this.canvas.width / 2, this.canvas.height / 2);
+			this.canvasContext.rotate(90 * Math.PI / 180);
+			this.canvasContext.translate(-this.canvas.height / 2, -this.canvas.width / 2);
+			
+			
+			tmpcnv.width=this.canvas.height;
+			tmpcnv.height=this.canvas.width;
+		}
+		else
+		{
+			tmpcnv.width=this.canvas.width;
+			tmpcnv.height=this.canvas.height;
+		}
+		
+		var tmpcontext = tmpcnv.getContext("2d")
+		tmpcontext.putImageData(this.currentRGBA, 0, 0);
+		//this.canvasContext.putImageData(this.currentRGBA, 0, 0);
+		
+		if (window.ornt == 0)
+		{
+			this.canvasContext.drawImage(tmpcnv,0, 0);
+		}
+		else
+		{
+			this.canvasContext.drawImage(tmpcnv, 0, 0);
+		}
+		//this.canvasContext.fillStyle="red";
+		//this.canvasContext.fillRect(- 50, - 100, 100, 200);
+		
+		if (window.ornt == 0)
+		{
+			this.canvasContext.translate(this.canvas.height / 2, this.canvas.width / 2);
+			this.canvasContext.rotate(-90 * Math.PI / 180);
+			this.canvasContext.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+		}
+	
+		//this.canvasContext.drawImage(this.canvas, 0, 0);
+		// roate the canvas by +90% (==Math.PI/2)
+		
+		//this.canvasContext.putImageData(this.currentRGBA, 0, 0);
+        //this.canvasContext.putImageData(this.currentRGBA, 0, 0);
+		//this.canvasContext.drawImage(this.currentRGBA, 0, 0);
     };
 
 

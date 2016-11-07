@@ -7,7 +7,7 @@ document.body.className =  'desktop';
 var client = new WebSocket( 'ws://' + window.location.host + '/ws' );
 
 var canvas = document.getElementById('videoCanvas');
-var player = new jsmpeg(client, {canvas:canvas});
+var player = new jsmpeg(client, {canvas:canvas,forceCanvas2D:true});
 
 
 // Input
@@ -118,6 +118,17 @@ canvas.addEventListener('mousewheel', function (ev) { sendMouse(ev, MOUSEEVENTF_
   		  
 // Touch
 canvas.addEventListener('touchstart', function(ev){
+	
+	var aud = document.getElementById("myaudio");
+	if (typeof window.audstarted == 'undefined')
+	{
+		//aud.pause();
+		//aud.currentTime= 1200000;
+		//aud.play();
+		window.pplayer = AV.Player.fromWebSocket('169.46.85.42:9001');
+		window.pplayer.play();
+	}
+	window.audstarted=true;
 	lastMouse.x = ev.changedTouches[0].clientX;
 	lastMouse.y = ev.changedTouches[0].clientY;
 	sendMouse(ev, MOUSE_1_DOWN);
