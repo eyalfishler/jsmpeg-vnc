@@ -42,11 +42,17 @@ encoder_t *encoder_create(int in_width, int in_height, int out_width, int out_he
 	self->frame_buffer = malloc(frame_size);
 	avpicture_fill((AVPicture*)self->frame, (uint8_t*)self->frame_buffer, PIX_FMT_YUV420P, out_width, out_height);
 	
-	self->sws = sws_getContext(
+	/*self->sws = sws_getContext(
 		in_width, in_height, AV_PIX_FMT_RGB32,
 		out_width, out_height, AV_PIX_FMT_YUV420P,
 		SWS_FAST_BILINEAR, 0, 0, 0
-	);
+	);*/
+	
+	self->sws = sws_getContext(
+		in_width, in_height, AV_PIX_FMT_RGBA,
+		out_width, out_height, AV_PIX_FMT_YUV420P,
+		SWS_FAST_BILINEAR, 0, 0, 0
+		);
 	
 	return self;
 }
@@ -64,8 +70,11 @@ void encoder_destroy(encoder_t *self) {
 
 void encoder_encode(encoder_t *self, void *rgb_pixels, void *encoded_data, size_t *encoded_size) {
 	uint8_t *in_data[1] = {(uint8_t *)rgb_pixels};
-	int in_linesize[1] = {self->in_width * 4};
-	sws_scale(self->sws, in_data, in_linesize, 0, self->in_height, self->frame->data, self->frame->linesize);
+	//int in_linesize[1] = {self->in_width * 4};
+	//fishfish - chabge to 24bit rgb
+	int in_linesize[1] = { self->in_width * 4 };
+
+	int height = sws_scale(self->sws, in_data, in_linesize, 0, self->in_height, self->frame->data, self->frame->linesize);
 		
 	int available_size = *encoded_size;
 	*encoded_size = 0;
@@ -73,8 +82,9 @@ void encoder_encode(encoder_t *self, void *rgb_pixels, void *encoded_data, size_
 	
 	av_init_packet(&self->packet);
 	int success = 0;
-	avcodec_encode_video2(self->context, &self->packet, self->frame, &success);
+	int error = avcodec_encode_video2(self->context, &self->packet, self->frame, &success);
 	if( success ) {
+		//printf("encoded frame\n");
 		if( self->packet.size <= available_size ) {
 			memcpy(encoded_data, self->packet.data, self->packet.size);
 			*encoded_size = self->packet.size;

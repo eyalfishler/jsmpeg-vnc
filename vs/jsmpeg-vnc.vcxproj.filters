@@ -22,12 +22,21 @@
     <Filter Include="source\libwebsockets">
       <UniqueIdentifier>{1ce68c0d-f7c2-4b54-b417-225037ee16cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="source\include">
+      <UniqueIdentifier>{889f3b37-8e35-4129-9f40-fccabdc950c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source\include\GL">
+      <UniqueIdentifier>{b46faa00-6dba-4bbe-8e87-a7713275ef3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\client\index.html">
       <Filter>client</Filter>
     </None>
     <None Include="..\client\jsmpg.js">
+      <Filter>client</Filter>
+    </None>
+    <None Include="..\client\jsmpg-vnc.js">
       <Filter>client</Filter>
     </None>
   </ItemGroup>
@@ -41,13 +50,13 @@
     <ClCompile Include="..\source\grabber.c">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\jsmpeg-vnc.c">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\server.c">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="..\source\timer.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\jsmpeg-vnc.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -314,6 +323,24 @@
       <Filter>source\libwebsockets</Filter>
     </ClInclude>
     <ClInclude Include="..\source\timer.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\templates.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\GL\eglew.h">
+      <Filter>source\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\GL\glew.h">
+      <Filter>source\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\GL\glxew.h">
+      <Filter>source\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\GL\wglew.h">
+      <Filter>source\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\zmq.hpp">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

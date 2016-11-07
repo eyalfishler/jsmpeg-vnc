@@ -3,7 +3,12 @@
 
 #include "app.h"
 #include "timer.h"
+FILE _iob[] = { *stdin, *stdout, *stderr };
 
+extern "C" FILE * __cdecl __iob_func(void)
+{
+	return _iob;
+}
 
 typedef enum {
 	jsmpeg_frame_type_video = 0xFA010000,
@@ -44,6 +49,7 @@ typedef struct {
 	unsigned short type;
 	unsigned short flags;
 	float x, y;
+	int amount;
 } input_mouse_t;
 
 
@@ -71,12 +77,19 @@ app_t *app_create(HWND window, int port, int bit_rate, int out_width, int out_he
 	app_t *self = (app_t *)malloc(sizeof(app_t));
 	memset(self, 0, sizeof(app_t));
 
+	TCHAR NPath[MAX_PATH];
+	char working_directory[MAX_PATH+1] ;
+	GetCurrentDirectoryA(MAX_PATH, working_directory);
+	printf(working_directory);
+	self->appWindow = window;
 	self->mouse_speed = APP_MOUSE_SPEED;
 	self->grabber = grabber_create(window);
 	
 	if( !out_width ) { out_width = self->grabber->width; }
 	if( !out_height ) { out_height = self->grabber->height; }
 	if( !bit_rate ) { bit_rate = out_width * 1500; } // estimate bit rate based on output size
+	self->width=out_width;
+	self->height=out_height;
 
 	self->encoder = encoder_create(
 		self->grabber->width, self->grabber->height, // in size
@@ -190,8 +203,8 @@ void app_on_message(app_t *self, libwebsocket *socket, void *data, size_t len) {
 		}
 
 		if( type & input_type_mouse_button ) {
-			//printf("mouse button %d\n", input->flags);
-			mouse_event(input->flags, 0, 0, 0, NULL);
+			//printf("mouse button %d and scroll amount %d\n", input->flags, input->amount);
+ 			mouse_event(input->flags, 0, 0, input->amount, NULL);
 		}
 	}
 }
@@ -212,13 +225,61 @@ void app_run(app_t *self, int target_fps) {
 		if( delta > wait_time ) {
 			fps = fps * 0.95f + 50.0f/delta;
 			timer_reset(frame_timer);
-
+			RECT rect;
+			GetClientRect(self->appWindow, &rect);	
+			
 			void *pixels;
 			double grab_time = timer_measure(grab_time) {
+				if ( rect.right-rect.left == 0 || rect.bottom-rect.top == 0)
+				{
+					Sleep(1);
+					continue;
+				}
+				//fishfish - with zmq the resolusion is constant
+				if (0 && (self->width != rect.right-rect.left || self->height != rect.bottom-rect.top) )
+				{
+						int bit_rate=0;
+						int out_width=0;
+						int out_height=0;
+						encoder_destroy(self->encoder);
+						grabber_destroy(self->grabber);
+
+						self->grabber = grabber_create(self->appWindow);
+						
+						if( !out_width ) { out_width = self->grabber->width; }
+						if( !out_height ) { out_height = self->grabber->height; }
+						if( !bit_rate ) { bit_rate = out_width * 1500; } // estimate bit rate based on output size
+						self->width=out_width;
+						self->height=out_height;
+
+						self->encoder = encoder_create(
+							self->grabber->width, self->grabber->height, // in size
+							out_width, out_height, // out size
+							bit_rate
+						);
+
+						///
+						jsmpeg_header_t header = {		
+							{'j','s','m','p'}, 
+							swap_int16(self->encoder->out_width), swap_int16(self->encoder->out_height)
+						};
+						 server_reset_resolution(self->server, &header, sizeof(header), server_type_binary);
+
+				
+						///
+	
+				}
+
+
 				pixels = grabber_grab(self->grabber);
 			}
 
 			double encode_time = timer_measure(encode_time) {
+				if ( rect.right-rect.left == 0 || rect.bottom-rect.top == 0)
+				{
+					Sleep(1);
+					continue;
+				}
 				size_t encoded_size = APP_FRAME_BUFFER_SIZE - sizeof(jsmpeg_frame_t);
 				encoder_encode(self->encoder, pixels, frame->data, &encoded_size);
 				

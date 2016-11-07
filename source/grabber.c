@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "grabber.h"
+#include "zmq.hpp"
 
 grabber_t *grabber_create(HWND window) {
 	grabber_t *self = (grabber_t *)malloc(sizeof(grabber_t));
@@ -14,8 +15,10 @@ grabber_t *grabber_create(HWND window) {
 	
 	self->window = window;
 	
-	self->width = rect.right-rect.left;
-	self->height = rect.bottom-rect.top;
+	//self->width = rect.right-rect.left;
+	//self->height = rect.bottom-rect.top;
+	self->width = 668;
+	self->height = 376;
 	
 	self->windowDC = GetDC(window);
 	self->memoryDC = CreateCompatibleDC(self->windowDC);
@@ -23,19 +26,33 @@ grabber_t *grabber_create(HWND window) {
 	
 	self->bitmapInfo.biSize = sizeof(BITMAPINFOHEADER);
 	self->bitmapInfo.biPlanes = 1;
+	//self->bitmapInfo.biBitCount = 32;
 	self->bitmapInfo.biBitCount = 32;
 	self->bitmapInfo.biWidth = self->width;
 	self->bitmapInfo.biHeight = -self->height;
 	self->bitmapInfo.biCompression = BI_RGB;
 	self->bitmapInfo.biSizeImage = 0;
 	
-	self->pixels = malloc(self->width * self->height * 4);
+	self->pixels = calloc(self->width * self->height * 4,sizeof(char));
+	
+	
+	self->context = zmq_ctx_new();
+	self->requester = zmq_socket(self->context, ZMQ_PULL);
+	int opt = 1;
+	zmq_setsockopt(self->requester, ZMQ_CONFLATE, &opt, sizeof(opt));
+	zmq_connect(self->requester, "tcp://127.0.0.1:9790");
 
 	return self;
 }
 
+
+
+
 void grabber_destroy(grabber_t *self) {
 	if( self == NULL ) { return; }
+
+	zmq_close(self->requester);
+	zmq_ctx_destroy(self->context);
 
 	ReleaseDC(self->window, self->windowDC);
     DeleteDC(self->memoryDC);
@@ -46,10 +63,15 @@ void grabber_destroy(grabber_t *self) {
 }
 
 void *grabber_grab(grabber_t *self) {
-	SelectObject(self->memoryDC, self->bitmap);
-	BitBlt(self->memoryDC, 0, 0, self->width, self->height, self->windowDC, 0, 0, SRCCOPY);
-	GetDIBits(self->memoryDC, self->bitmap, 0, self->height, self->pixels, (BITMAPINFO*)&(self->bitmapInfo), DIB_RGB_COLORS);
-	
+	//SelectObject(self->memoryDC, self->bitmap);
+	//BitBlt(self->memoryDC, 0, 0, self->width, self->height, self->windowDC, 0, 0, SRCCOPY);
+	//GetDIBits(self->memoryDC, self->bitmap, 0, self->height, self->pixels, (BITMAPINFO*)&(self->bitmapInfo), DIB_RGB_COLORS);
+	//
+	// zmq_send (requester, "Hello", 5, 0);
+	int read=zmq_recv(self->requester, self->pixels, self->width * self->height * 4, 0);
+	printf("got frame\n");
+	if (read < 0)
+		printf("%d: %s\n", zmq_errno(), zmq_strerror(zmq_errno()));
 	return self->pixels;
 }
 

@@ -16,6 +16,9 @@ typedef struct {
 	int height;
 	
 	void *pixels;
+	void *context;
+	void *requester;
+
 } grabber_t;
 
 

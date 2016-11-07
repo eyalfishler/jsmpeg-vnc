@@ -17,6 +17,9 @@ typedef struct {
 	server_t *server;
 
 	float mouse_speed;
+	HWND appWindow;
+	LONG width;
+	LONG height;
 } app_t;
 
 

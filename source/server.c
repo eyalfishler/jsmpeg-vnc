@@ -121,6 +121,18 @@ void server_send(server_t *self, libwebsocket *socket, void *data, size_t size, 
 	libwebsocket_write(socket, self->send_buffer, size, (libwebsocket_write_protocol)type);
 }
 
+void server_reset_resolution(server_t *self, void *data, size_t size, server_data_type_t type) {
+	if( size > self->buffer_size ) {
+		printf("Cant send %d bytes; exceeds buffer size (%d bytes)\n", size, self->buffer_size);
+		return;
+	}
+	memcpy(self->send_buffer, data, size);
+	client_foreach(self->clients, client) {
+		libwebsocket_write(client->socket, self->send_buffer, size, (libwebsocket_write_protocol)type);
+	}
+	//libwebsocket_callback_on_writable_all_protocol(&(server_protocols[1]));
+}
+
 void server_broadcast(server_t *self, void *data, size_t size, server_data_type_t type) {
 	if( size > self->buffer_size ) {
 		printf("Cant send %d bytes; exceeds buffer size (%d bytes)\n", size, self->buffer_size);

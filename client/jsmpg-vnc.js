@@ -1,5 +1,6 @@
 // Set the body class to show/hide certain elements on mobile/desktop
-document.body.className = ('ontouchstart' in window) ? 'mobile' : 'desktop';
+//document.body.className = ('ontouchstart' in window) ? 'mobile' : 'desktop';
+document.body.className =  'desktop';
 
 
 // Setup the WebSocket connection and start the player
@@ -33,6 +34,7 @@ var KEY_DOWN = 0x01,
 	MOUSE_1_UP = 0x0004,
 	MOUSE_2_DOWN = 0x0008,
 	MOUSE_2_UP = 0x0010;
+    MOUSEEVENTF_WHEEL = 0x0800;
 
 // struct input_key_t { uint16 type, uint16 state; uint16 key_code; }
 var sendKey = function(ev, action, key) {
@@ -41,9 +43,10 @@ var sendKey = function(ev, action, key) {
 };
 
 // struct input_mouse_t { uint16 type, uint16 flags; float32 x; float32 y; }
-var mouseDataBuffer = new ArrayBuffer(12);
+var mouseDataBuffer = new ArrayBuffer(16);
 var mouseDataTypeFlags = new Uint16Array(mouseDataBuffer, 0);
 var mouseDataCoords = new Float32Array(mouseDataBuffer, 4);
+var mouseScrollAmount = new Int32Array(mouseDataBuffer, 12);
 
 var sendMouse = function(ev, action) {
 	var type = 0;
@@ -95,6 +98,7 @@ var sendMouse = function(ev, action) {
 	mouseDataTypeFlags[1] = (action||0);
 	mouseDataCoords[0] = x;
 	mouseDataCoords[1] = y;
+	mouseScrollAmount[0] = (ev.wheelDelta || 0);
 	
 	client.send(mouseDataBuffer);
 	ev.preventDefault();
@@ -110,6 +114,8 @@ canvas.addEventListener('mousemove', function(ev){ sendMouse(ev, null); }, false
 canvas.addEventListener('mousedown', function(ev){ sendMouse(ev, ev.button == 2 ? MOUSE_2_DOWN : MOUSE_1_DOWN); }, false);
 canvas.addEventListener('mouseup', function(ev){ sendMouse(ev, ev.button == 2 ? MOUSE_2_UP : MOUSE_1_UP); }, false);
 
+canvas.addEventListener('mousewheel', function (ev) { sendMouse(ev, MOUSEEVENTF_WHEEL); }, false);
+  		  
 // Touch
 canvas.addEventListener('touchstart', function(ev){
 	lastMouse.x = ev.changedTouches[0].clientX;

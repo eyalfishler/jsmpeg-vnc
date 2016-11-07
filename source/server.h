@@ -41,5 +41,6 @@ char *server_get_client_address(server_t *self, libwebsocket *wsi);
 void server_update(server_t *self);
 void server_send(server_t *self, libwebsocket *socket, void *data, size_t size, server_data_type_t type);
 void server_broadcast(server_t *self, void *data, size_t size, server_data_type_t type);
+void server_reset_resolution(server_t *self, void *data, size_t size, server_data_type_t type);
 
 #endif
