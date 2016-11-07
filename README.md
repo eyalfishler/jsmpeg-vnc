@@ -1,5 +1,7 @@
 # jsmpeg-vnc
 
+!!! - This is a modifed version that is intended to be used with AndyOS player. it will not work by capturing the window DC.
+
 A low latency, high framerate screen sharing server and client, viewable in any modern browser.
 
 [More Info & Demo Video](http://phoboslab.org/log/2015/07/play-gta-v-in-your-browser-sort-of)
